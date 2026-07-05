@@ -10,12 +10,20 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
-pool.connect()
-  .then(() => {
+const connectDB = async () => {
+  try {
+    await pool.connect();
     console.log("PostgreSQL Connected Successfully");
-  })
-  .catch((error) => {
+  } catch (error) {
     console.log("Database Connection Failed:", error.message);
-  });
+
+    setTimeout(connectDB, 5000);
+  }
+};
+
+// Don't connect to the database while running Jest tests
+if (process.env.NODE_ENV !== "test") {
+  connectDB();
+}
 
 module.exports = pool;

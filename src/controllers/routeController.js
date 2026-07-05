@@ -58,55 +58,58 @@ function dijkstra(graph, start, end) {
   };
 }
 
-const calculateRoute = async (req, res) => {
-  const graph = {
-    A: [
-      { node: "B", weight: 5 },
-      { node: "C", weight: 2 },
-    ],
+const calculateRoute = async (req, res, next) => {
+  try {
+    const graph = {
+      A: [
+        { node: "B", weight: 5 },
+        { node: "C", weight: 2 },
+      ],
 
-    B: [
-      { node: "A", weight: 5 },
-      { node: "D", weight: 1 },
-    ],
+      B: [
+        { node: "A", weight: 5 },
+        { node: "D", weight: 1 },
+      ],
 
-    C: [
-      { node: "A", weight: 2 },
-      { node: "D", weight: 3 },
-    ],
+      C: [
+        { node: "A", weight: 2 },
+        { node: "D", weight: 3 },
+      ],
 
-    D: [
-      { node: "C", weight: 3 },
-      { node: "B", weight: 1 },
-    ],
-  };
+      D: [
+        { node: "C", weight: 3 },
+        { node: "B", weight: 1 },
+      ],
+    };
 
-  const result = dijkstra(graph, "A", "D");
+    const result = dijkstra(graph, "A", "D");
 
+    await pool.query(
+      `
+      INSERT INTO routes_history
+      (
+        user_id,
+        start_location,
+        end_location,
+        distance
+      )
+      VALUES ($1, $2, $3, $4)
+      `,
+      [
+        1,
+        "A",
+        "D",
+        result.distance,
+      ]
+    );
 
-   await pool.query(
-  `
-  INSERT INTO routes_history
-  (
-    user_id,
-    start_location,
-    end_location,
-    distance
-  )
-  VALUES ($1, $2, $3, $4)
-  `,
-  [
-    1,
-    "A",
-    "D",
-    result.distance,
-  ]
-);
-
-  res.json({
-    message: "Shortest Route Calculated",
-    result,
-  });
+    res.json({
+      message: "Shortest Route Calculated",
+      result,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {

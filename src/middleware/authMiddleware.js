@@ -4,6 +4,9 @@ const authMiddleware = (req, res, next) => {
   try {
     const token = req.header("Authorization");
 
+    console.log("Token:", token);
+console.log("JWT Secret:", process.env.JWT_SECRET);
+
     if (!token) {
       return res.status(401).json({
         message: "Access Denied",

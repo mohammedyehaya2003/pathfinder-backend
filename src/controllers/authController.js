@@ -2,7 +2,7 @@ const pool = require("../db/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -16,20 +16,19 @@ const register = async (req, res) => {
     );
 
     res.status(201).json({
-      message: "User Registered Successfully",
-      user: result.rows[0],
-    });
+  success: true,
+  message: "User Registered Successfully",
+  data: {
+    user: result.rows[0],
+  },
+});
 
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Registration Failed",
-    });
-  }
+  }catch (error) {
+  next(error);
+}
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -75,18 +74,17 @@ const token = jwt.sign(
   }
 );
 
-    res.status(200).json({
+   res.status(200).json({
+  success: true,
   message: "Login Successful",
-  token,
+  data: {
+    token,
+  },
 });
 
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Login Failed",
-    });
-  }
+  next(error);
+}
 };;
 
 module.exports = {

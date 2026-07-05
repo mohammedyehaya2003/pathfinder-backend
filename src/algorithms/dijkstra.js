@@ -62,4 +62,4 @@ const graph = {
   ],
 };
 
-console.log(dijkstra(graph, "A"));
+module.exports = dijkstra;
